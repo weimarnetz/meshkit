@@ -21,6 +21,12 @@ if not config == None:
         Field('nodenumber', 
             requires=IS_EMPTY_OR(IS_DECIMAL_IN_RANGE(1, 1000, error_message=T('%(name)s is invalid') % dict(name=T('Node Number'))))
         ),
+        Field('ipschema',
+            requires=IS_EMPTY_OR(IS_MATCH('[a-zA-Z0-9\-]+', error_message=T('%(name)s is invalid') % dict(name=T('IP Schema'))))
+        ),
+        Field('wifimode',
+            requires=IS_EMPTY_OR(IS_MATCH('[a-zA-Z0-9\-]+', error_message=T('%(name)s is invalid') % dict(name=T('Wifi Mode'))))
+        ),
         Field('pubkeys',type='text',
             requires=IS_EMPTY_OR([
                     IS_LENGTH(32768,0, error_message=T('%(name)s can only be up to %(len)s characters long') % dict(name=T('Pubkeys'), len='32768')),

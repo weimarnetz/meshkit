@@ -123,6 +123,8 @@ def wizard():
         c = uci.UCI(config.profiles, "profile_" + session.community)
         community_defaults = c.read()
         nodenumber = ''
+        ipschema = ''
+        wifimode = ''
         # Add meshwizard to defaultpackages and lucipackages
         defaultpkgs.append('meshwizard')
         lucipackages = config.lucipackages + " luci-app-meshwizard"
@@ -215,7 +217,7 @@ def wizard():
         
     hash = hashlib.md5(str(datetime.datetime.now()) + str(random.randint(1,999999999))).hexdigest()
     return dict(form=form, packages='',rand=hash, defaultpkgs=defaultpkgs, lucipackages=lucipackages, nodenumber=nodenumber,
-                lat=latitude, lon=longitude, defchannel=defchannel, defip=defip,
+                ipschema=ipschema, wifimode = wifimode, lat=latitude, lon=longitude, defchannel=defchannel, defip=defip,
                 community_packages=community_packages  + " " + config.add_defaultpackages,
                 user_packagelist=user_packagelist, addpackages='',
                 ipv6_packages=ipv6_packages, formhelpers=formhelpers
