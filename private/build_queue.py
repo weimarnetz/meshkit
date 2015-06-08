@@ -73,7 +73,8 @@ class BuildImages(object):
                  lanproto=None, lanipv4addr=None, lannetmask=None, landhcp=None,
                  landhcprange=None, wanproto=None, wanipv4addr=None, wannetmask=None,
                  wangateway=None, wandns=None, wan_allow_ssh=None, wan_allow_web=None,
-                 localrestrict=None, sharenet=None, url=None
+                 localrestrict=None, sharenet=None, url=None,
+                 wan_qos=None, wan_qos_down=None, wan_qos_up=None
                  ):
         self.Id = str(id)
         self.Rand = rand
@@ -99,12 +100,13 @@ class BuildImages(object):
         self.Ipschema = ipschema or 'ffweimar' # kalua: configures ip schema, based on node number
         self.Nickname = nickname or ''
         self.Name = name or ''
+        self.Homepage = homepage or ''
         self.Email = email or '' # this is the email address for contact information
         self.Phone = phone or ''
         self.Note = note or ''
         if theme:
             self.Theme = theme.replace("luci-theme-", "") or 'freifunk-generic'
-	else:
+        else:
             self.Theme = 'freifunk-generic'
         self.Wifi0ipv4addr = wifi0ipv4addr
         self.Wifi0ipv6addr = wifi0ipv6addr
@@ -141,6 +143,11 @@ class BuildImages(object):
         self.Wan_allow_web = wan_allow_web and 1 or 0
         self.Localrestrict = localrestrict and "1" or "0"
         self.Sharenet = sharenet and "1" or "0"
+        self.Wan_qos = wan_qos and 1 or 0
+        self.Wan_qos_down = wan_qos_down or "1024"
+        self.Wan_qos_up = wan_qos_up or "128"
+        
+        
         self.Hostname = hostname
         if not self.Hostname:
             if self.Wifi0ipv4addr:
@@ -339,6 +346,7 @@ class BuildImages(object):
         config += "config 'public' 'contact'\n"
         config += "\toption 'nickname' '" + self.Nickname + "'\n"
         config += "\toption 'name' '" + self.Name + "'\n"
+        config += "\toption 'homepage' '" + self.Homepage + "'\n"
         config += "\toption 'mail' '" + self.Email + "'\n"
         config += "\toption 'phone' '" + self.Phone + "'\n"
         config += "\toption 'note' '" + self.Note + "'\n"
@@ -414,7 +422,7 @@ class BuildImages(object):
             config += "\n"
 
         # section Lan - static
-        if self.Lanproto == 'static':
+        if self.Lanproto == 'static' and self.Lanipv4addr and self.Lannetmask:
                 config += "config 'netconfig' 'lan'\n"
                 config += "\toption 'proto' '" + self.Lanproto + "'\n"
                 config += "\toption 'ip4addr' '" + self.Lanipv4addr + "'\n"
@@ -433,7 +441,13 @@ class BuildImages(object):
         config += "\toption 'sharenet' '"+ self.Sharenet + "'\n"
         config += "\toption 'localrestrict' '" + self.Localrestrict + "'\n"
         config += "\n"
-
+        
+        # Section qos
+        if self.Wan_qos == 1:
+            config += "config 'qos' 'wan'\n"
+            config += "\toption 'down' '"+ str(self.Wan_qos_down) + "'\n"
+            config += "\toption 'up' '"+ str(self.Wan_qos_up) + "'\n"
+            config += "\n"
 
         # Write config to etc/config/meshwizard
         try:
@@ -529,7 +543,7 @@ class BuildImages(object):
                 option_profile = ""
 
             # Copy community profile
-            if self.Community:
+            if config.communitysupport and self.Community:
                 communityprofile = os.path.join(config.profiles, 'profile_' + self.Community)
                 if not os.path.exists(communityprofile):
                     logger.warning('The communityfile %s does not exist!' % communityprofile)
@@ -581,7 +595,7 @@ else:
                                       nodenumber=row.nodenumber, ipschema=row.ipschema, wifimode=row.wifimode, 
                                       latitude=row.latitude, longitude=row.longitude, location=row.location,
                                       ipv6=row.ipv6, ipv6_config=row.ipv6_config,
-                                      community=row.community, nickname=row.nickname, name=row.name,
+                                      community=row.community, nickname=row.nickname, name=row.name, homepage=row.homepage,
                                       email=row.email, phone=row.phone, note=row.note, theme=row.theme,
                                       wifi0ipv4addr=row.wifi0ipv4addr, wifi0chan=row.wifi0chan,
                                       wifi0ipv6addr=row.wifi0ipv6addr, wifi0ipv6ra=row.wifi0ipv6ra,
@@ -598,7 +612,8 @@ else:
                                       wanipv4addr=row.wanipv4addr, wannetmask=row.wannetmask,
                                       wangateway=row.wangateway, wandns=row.wandns,
                                       wan_allow_ssh=row.wan_allow_ssh, wan_allow_web=row.wan_allow_web,
-                                      localrestrict=row.localrestrict, sharenet=row.sharenet, url=row.url
+                                      localrestrict=row.localrestrict, sharenet=row.sharenet, url=row.url,
+                                      wan_qos=row.wan_qos, wan_qos_down=row.wan_qos_down, wan_qos_up=row.wan_qos_up
                                       )
                 ret = builder.build()
                 if ret == 0:

@@ -132,6 +132,11 @@ if not config == None:
                 IS_LENGTH(64,0, error_message=T('%(name)s can only be up to %(len)s characters long') % dict(name=T('Location'), len='64'))
             )
         ),
+        Field('homepage',
+            requires=IS_EMPTY_OR(
+                IS_URL(error_message=T("%(name)s isn't a valid URL") % dict(name=T('Homepage'), len='255'))
+            )
+        ),
         Field('note',
             requires=IS_EMPTY_OR(
                     IS_LENGTH(512,0, error_message=T('%(name)s can only be up to %(len)s characters long') % dict(name=T('Note'), len='512'))
@@ -158,6 +163,9 @@ if not config == None:
         Field('wan_allow_web','boolean'),
         Field('sharenet','boolean'),
         Field('localrestrict','boolean'),
+        Field('wan_qos', 'boolean'),
+        Field('wan_qos_down', 'integer'),
+        Field('wan_qos_up', 'integer'),
         Field('lanproto',
             requires=IS_EMPTY_OR(
                 IS_IN_SET(config.lanprotos, error_message=T('%(name)s is invalid') % dict(name='LAN ' +T('Protocol')))

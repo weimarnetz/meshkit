@@ -6,6 +6,7 @@
 <script type="text/javascript">communitypackages = '{{=community_packages}}'</script>
 <script type="text/javascript">nosharepackages = ''</script>
 <script type="text/javascript">lucipackages = ''</script>
+<script type="text/javascript">qospackages = ''</script>
 <script type="text/javascript">ipv6packages = '{{=ipv6_packages}}'</script>
 <script type="text/javascript">user_packagelist = '{{=user_packagelist}}'</script>
 <script type="text/javascript">addpackages = '{{=addpackages}}'</script>
@@ -249,6 +250,13 @@ $( "#accordion" ).accordion({ heightStyle: "content" });
       field_name.Value = form.vars.name or session.name or ''
       field_name.Errormsg = form.errors.name
       field_name = field_name.input()
+      field_homepage = formhelpers.formfield()
+      field_homepage.Name = 'homepage'
+      field_homepage.Label = T('Homepage')
+      field_homepage.Helptext = T('If you have a homepage, then you can add it here.')
+      field_homepage.Value = form.vars.homepage or session.homepage or ''
+      field_homepage.Errormsg = form.errors.homepage
+      field_homepage = field_homepage.input()
       field_email = formhelpers.formfield()
       field_email.Name = 'email'
       field_email.Label = T('Mail')
@@ -273,6 +281,7 @@ $( "#accordion" ).accordion({ heightStyle: "content" });
     }}
     {{=field_nickname}}
     {{=field_name}}
+    {{=field_homepage}}
     {{=field_email}}
     {{=field_phone}}
     {{=field_note}}
@@ -688,6 +697,34 @@ $( "#accordion" ).accordion({ heightStyle: "content" });
       field_wan_allow_web.Value = form.vars.wan_allow_web or False
       field_wan_allow_web.Errormsg = form.errors.wan_allow_web
       field_wan_allow_web = field_wan_allow_web.chkbox()
+      
+      field_wan_qos = formhelpers.formfield()
+      field_wan_qos.Name = 'wan_qos'
+      field_wan_qos.Label = T('QOS')
+      field_wan_qos.Helptext = T('Adds traffic shaping with a fixed down- and upload limit to the WAN-Interface.')
+      field_wan_qos.Value = form.vars.wan_qos or False
+      field_wan_qos.Special = 'onchange="qospkgs();"'
+      field_wan_qos.Errormsg = form.errors.wan_qos
+      field_wan_qos = field_wan_qos.chkbox()
+      
+      field_wan_qos_down = formhelpers.formfield()
+      field_wan_qos_down.Name = 'wan_qos_down'
+      field_wan_qos_down.Label = T('Download speed')
+      field_wan_qos_down.Helptext = T('Download speed in kbit/s. Set it about 10% lower than your actual internet download speed.')
+      field_wan_qos_down.Value = form.vars.wan_qos_down or '1024'
+      field_wan_qos_down.Errormsg = form.errors.wan_qos_down
+      field_wan_qos_down = field_wan_qos_down.input()
+      
+      field_wan_qos_up = formhelpers.formfield()
+      field_wan_qos_up.Name = 'wan_qos_up'
+      field_wan_qos_up.Label = T('Upload speed')
+      field_wan_qos_up.Helptext = T('Upload speed in kbit/s. Set it about 10% lower than your actual internet upload speed.')
+      field_wan_qos_up.Value = form.vars.wan_qos_up or '128'
+      field_wan_qos_up.Errormsg = form.errors.wan_qos_up
+      field_wan_qos_up = field_wan_qos_up.input()
+      
+ 
+      
     }}
     {{=field_wanproto}}	
     <div id="wan_options">
@@ -705,14 +742,19 @@ $( "#accordion" ).accordion({ heightStyle: "content" });
         sharenet = '{{=field_sharenet}}';
         wan_allow_ssh = '{{=field_wan_allow_ssh}}';
         wan_allow_web = '{{=field_wan_allow_web}}';
+        wan_qos = '{{=field_wan_qos}}';
+        wan_qos_down = '{{=field_wan_qos_down}}';
+        wan_qos_up = '{{=field_wan_qos_up}}';
+        wan_qos = wan_qos + '<div id="qos-options"></div>';
+        
 
         if ( selected == 'dhcp' ) {
-          document.getElementById('wan_options').innerHTML = wan_allow_ssh + wan_allow_web + localrestrict + sharenet;
+          document.getElementById('wan_options').innerHTML = wan_allow_ssh + wan_allow_web + localrestrict + sharenet + wan_qos;
         };
         if ( selected == 'static' ) {
           wangateway = '{{=field_wangateway}}';
           wandns = '{{=field_wandns}}';
-          document.getElementById('wan_options').innerHTML = wanipv4addr + wannetmask + wangateway + wandns + localrestrict + sharenet + wan_allow_ssh + wan_allow_web;
+          document.getElementById('wan_options').innerHTML = wanipv4addr + wannetmask + wangateway + wandns + localrestrict + sharenet + wan_allow_ssh + wan_allow_web + wan_qos;
         };
         if ( selected == 'olsr' ) {
           document.getElementById('wan_options').innerHTML = wanipv4addr + wannetmask;
@@ -731,6 +773,21 @@ $( "#accordion" ).accordion({ heightStyle: "content" });
           update_defaultpkgs();
         }
       };
+ 
+      function qospkgs() {
+        if(document.getElementById("imageconf_wan_qos").checked) {
+          qospackages= 'qos-scripts' ;
+          $( "#qos-options").html(wan_qos_down + wan_qos_up);
+          hideAll();
+          update_defaultpkgs();
+        }
+        else {
+          qospackages = '';
+          $( "#qos-options").html('');
+          update_defaultpkgs();
+        }
+      };
+      qospkgs();
       nosharepkgs();
     </script>
   </div>

@@ -143,8 +143,10 @@ def wizard():
         vap = c.get(community_defaults, 'profile', 'vap', '0')
         session.theme = c.get(community_defaults, 'profile', 'theme', config.defaulttheme)
     else:
-        session.communitysupport == False
+        session.communitysupport = False
         lucipackages = config.lucipackages
+        vap = 0
+        nodenumber = False
         community_defaults = dict()
         
     session.localrestrict=True
@@ -177,6 +179,7 @@ def wizard():
     if auth.user:
         session.nickname = auth.user.username or ''
         session.name = auth.user.name or ''
+        session.homepage = auth.user.homepage or ''
         session.phone = auth.user.phone or ''
         session.location = auth.user.location or ''
         session.note = auth.user.note or ''
@@ -184,6 +187,7 @@ def wizard():
     else:
         session.nickname = ''
         session.name = ''
+        session.homepage = ''
         session.phone = ''
         session.location = ''
         session.note = ''
